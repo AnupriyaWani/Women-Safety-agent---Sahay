@@ -1,0 +1,6 @@
+filename,known_transcript,source
+synthetic_help_shout_01.wav,help,manually confirmed by user
+synthetic_help_shout_02.wav,help,manually confirmed by user
+real_help_shout_01.wav,help help,filename indicates content
+real_help_shout_02.wav,help help,filename indicates content
+real_stopit_shout_01.wav,stop it,filename indicates content

@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Incoming Call</title>
+<style>
+  :root {
+    --bg-top: #1c2333;
+    --bg-bottom: #0a0d14;
+    --text-primary: #f4f5f7;
+    --text-secondary: #9aa3b2;
+    --decline-red: #ff4b4b;
+    --answer-green: #34d17c;
+    --glass: rgba(255,255,255,0.08);
+  }
+  * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color: transparent; }
+  html, body {
+    height: 100%;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background: radial-gradient(circle at 50% 20%, var(--bg-top), var(--bg-bottom) 75%);
+    color: var(--text-primary);
+    overflow: hidden;
+  }
+  .call-screen {
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    padding: 60px 24px 48px;
+  }
+  .status-bar {
+    font-size: 13px;
+    color: var(--text-secondary);
+    letter-spacing: 0.5px;
+  }
+  .caller-info {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    margin-top: 20px;
+  }
+  .avatar {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    background: linear-gradient(160deg, #4a5468, #2a3142);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 44px;
+    font-weight: 600;
+    color: var(--text-primary);
+    box-shadow: 0 8px 30px rgba(0,0,0,0.4);
+    margin-bottom: 8px;
+  }
+  .caller-name {
+    font-size: 30px;
+    font-weight: 600;
+    letter-spacing: 0.2px;
+  }
+  .call-sub {
+    font-size: 16px;
+    color: var(--text-secondary);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .pulse-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--answer-green);
+    animation: pulse 1.4s infinite ease-in-out;
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 0.35; transform: scale(0.85); }
+    50% { opacity: 1; transform: scale(1); }
+  }
+  .actions {
+    width: 100%;
+    max-width: 340px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .action-col {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+  }
+  .btn {
+    width: 68px;
+    height: 68px;
+    border-radius: 50%;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+  }
+  .btn:active { transform: scale(0.92); }
+  .btn.decline { background: var(--decline-red); box-shadow: 0 6px 24px rgba(255,75,75,0.35); }
+  .btn.answer { background: var(--answer-green); box-shadow: 0 6px 24px rgba(52,209,124,0.35); }
+  .btn svg { width: 28px; height: 28px; }
+  .action-label {
+    font-size: 13px;
+    color: var(--text-secondary);
+  }
+  .hint {
+    position: absolute;
+    bottom: 12px;
+    left: 0; right: 0;
+    text-align: center;
+    font-size: 11px;
+    color: rgba(154,163,178,0.5);
+  }
+</style>
+</head>
+<body>
+
+<div class="call-screen">
+  <div class="status-bar" id="clock">Incoming Call</div>
+
+  <div class="caller-info">
+    <div class="avatar" id="avatarInitial">M</div>
+    <div class="caller-name" id="callerName">Mom</div>
+    <div class="call-sub"><span class="pulse-dot"></span> mobile</div>
+  </div>
+
+  <div class="actions">
+    <div class="action-col">
+      <button class="btn decline" onclick="endCall()" aria-label="Decline">
+        <svg viewBox="0 0 24 24" fill="none"><path d="M21 15.5c-1.3 0-2.6-.2-3.8-.6a1 1 0 0 0-1 .24l-1.7 1.7a15.1 15.1 0 0 1-6.6-6.6l1.7-1.7a1 1 0 0 0 .25-1A11.7 11.7 0 0 1 9.5 3a1 1 0 0 0-1-1H5a1 1 0 0 0-1 1c0 9.4 7.6 17 17 17a1 1 0 0 0 1-1v-3.5a1 1 0 0 0-1-1z" fill="white" transform="rotate(135 12 12)"/></svg>
+      </button>
+      <span class="action-label">Decline</span>
+    </div>
+    <div class="action-col">
+      <button class="btn answer" onclick="answerCall()" aria-label="Answer">
+        <svg viewBox="0 0 24 24" fill="none"><path d="M21 15.5c-1.3 0-2.6-.2-3.8-.6a1 1 0 0 0-1 .24l-1.7 1.7a15.1 15.1 0 0 1-6.6-6.6l1.7-1.7a1 1 0 0 0 .25-1A11.7 11.7 0 0 1 9.5 3a1 1 0 0 0-1-1H5a1 1 0 0 0-1 1c0 9.4 7.6 17 17 17a1 1 0 0 0 1-1v-3.5a1 1 0 0 0-1-1z" fill="white"/></svg>
+      </button>
+      <span class="action-label">Answer</span>
+    </div>
+  </div>
+
+  <div class="hint">Safety Agent · Simulated Call Screen</div>
+</div>
+
+<script>
+  // Read the caller name from the URL, e.g. fake_call.html?name=Mom
+  // This lets the agent trigger this screen with any chosen name.
+  const params = new URLSearchParams(window.location.search);
+  const name = params.get('name') || 'Mom';
+  document.getElementById('callerName').textContent = name;
+  document.getElementById('avatarInitial').textContent = name.charAt(0).toUpperCase();
+
+  function answerCall() {
+    // In a real app, this would open a fake "in-call" screen with audio
+    // playback of a pre-recorded voice, to sustain the illusion of a call.
+    alert('Call answered (simulated) - in production this would play a fake conversation.');
+  }
+
+  function endCall() {
+    window.close();
+    document.body.innerHTML = '<div style="display:flex;height:100vh;align-items:center;justify-content:center;color:#9aa3b2;font-family:sans-serif;">Call ended</div>';
+  }
+</script>
+
+</body>
+</html>
