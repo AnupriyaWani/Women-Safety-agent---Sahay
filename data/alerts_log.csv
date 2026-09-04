@@ -3,3 +3,5 @@ timestamp,contact_name,contact_phone,action_type,message,status
 2026-08-23T19:15:06.683870,Mom,+911234567890,CALL,Automated siren call,SIMULATED
 2026-08-23T19:15:06.683946,Best Friend,+919876543210,SMS,"EMERGENCY: A person you're connected to may need help. Location: https://maps.google.com/?q=23.2599,77.4126",SIMULATED
 2026-08-23T19:15:06.683974,Best Friend,+919876543210,CALL,Automated siren call,SIMULATED
+2026-09-05T01:29:35.421352,Mom,+917089073727,WHATSAPP,"EMERGENCY: A person you're connected to may need help. Location: https://maps.google.com/?q=23.2599,77.4126",SIMULATED
+2026-09-05T01:29:35.429912,Mom,+917089073727,CALL,Automated siren call,SIMULATED

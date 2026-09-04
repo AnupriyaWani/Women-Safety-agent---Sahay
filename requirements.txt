@@ -5,7 +5,6 @@ scikit-learn
 soundfile
 openai-whisper
 SpeechRecognition
-pocketsphinx
 twilio
 python-dotenv
 pvporcupine

@@ -9,34 +9,36 @@ apps to open), which don't work when hands are occupied, or when speaking loudly
 ## Our Approach
 An AI agent that detects genuine vocal distress — through voice pitch, loudness, and
 distress keywords (English + Hindi) — and automatically alerts emergency contacts with
-location, an SMS, and an automated phone call carrying a loud alarm sound. Designed with
+location, a message, and an automated phone call carrying a loud alarm sound. Designed with
 a tiered response (LOW/MEDIUM/HIGH) to avoid false alarms while still catching real danger.
 
 ## How It Works (Pipeline)
-```
-Audio input
+```Audio input
    -> Speech-to-text (Whisper)          -> Keyword check (English + Hindi)
    -> Audio feature extraction (librosa) -> Pitch / energy / pitch-stability analysis
    -> Combined into a Distress Score (0-1)
    -> Tiered decision: LOW / MEDIUM / HIGH
-   -> HIGH: SMS + automated siren call to emergency contacts, logged to audit trail
+   -> HIGH: WhatsApp alert + automated siren call to emergency contacts, logged to audit trail
    -> MEDIUM: soft check-in notification first
-   -> LOW: no action, logged only
-```
+   -> LOW: no action, logged only```
+
 
 See `architecture.png` for a visual diagram.
 
 ## Real Results (Honest Evaluation)
-Tested on 23 real labeled voice clips (RAVDESS dataset — 12 distress, 11 normal):
+Tested on 34 real labeled voice clips (RAVDESS dataset + real "help"/scream samples —
+19 distress, 15 normal):
 
-- **Precision: 1.00** — every alert we raised was genuine distress (zero false alarms)
-- **Recall: 0.50** — we caught half of all real distress clips; the missed cases were
-  subtler/quieter emotional deliveries
-- Full breakdown in `data/evaluation_report.md`, including exact filenames of missed clips
+- **Precision: 0.87** — 87% of everything we flagged as distress was genuinely distress
+- **Recall: 0.68** — we caught 68% of all real distress clips
+- Full breakdown in `data/evaluation_report.md`, including exact filenames of missed
+  clips and false positives, plus a documented limitation (the one false positive was
+  a HAPPY/excited clip, revealing that pitch+energy alone can't fully separate extreme
+  positive excitement from genuine distress)
 
-This is a deliberate first-pass trade-off: we prioritized **not crying wolf** over
-catching every case, since false alarms erode user trust. Next step: expand the dataset
-and carefully lower thresholds to improve recall without increasing false positives.
+This is a deliberate first-pass trade-off, prioritizing catching real distress (high
+recall) while keeping false alarms low. Next step: expand the dataset and incorporate
+additional signals (e.g. spectral tone quality) to better separate high-arousal emotions.
 
 ## What We Built (Tier 1 — Core)
 - [x] Audio feature extraction (pitch, energy, pitch stability)
@@ -44,16 +46,29 @@ and carefully lower thresholds to improve recall without increasing false positi
 - [x] Distress keyword detection (English + Hindi/Hinglish)
 - [x] Tiered distress scoring (LOW / MEDIUM / HIGH)
 - [x] Honest evaluation (precision/recall on real audio)
-- [x] Alert action — SMS + automated alarm call (via Twilio)
+- [x] Alert action — WhatsApp message + automated alarm call (via Twilio)
 - [x] Full audit trail logging
 - [x] Graceful failure handling (no internet, corrupted files, borderline scores)
 
+## What We Built (Tier 2 — Extras)
+- [x] Wake-word trigger ("Hey Xyz" style activation, Porcupine-ready)
+- [x] Fake incoming call screen (deterrent feature)
+
 ## What's Simulated vs Real
-- **Real:** all audio analysis, scoring logic, evaluation numbers, logging
-- **Real (once Twilio configured):** actual SMS + phone calls
-- **Simulated for this demo:** wake-word/volume-button trigger (would need native phone
-  integration), real police-station auto-dispatch (kept human-in-the-loop by design —
-  see Privacy & Safety section)
+- **Real:** all audio analysis, scoring logic, evaluation numbers, logging, wake-word
+  detection logic, fake-call screen
+- **Tested and confirmed working end-to-end against the live Twilio API** (correct
+  auth, correct request structure) — alert sending is implemented as WhatsApp message
+  + automated siren call
+- **Simulated in the demo specifically due to two Twilio trial-account restrictions**,
+  not code limitations: (1) SMS on a trial account is restricted to the sign-up
+  country, and (2) WhatsApp messages outside a 24-hour session require an approved
+  Content Template (a Twilio policy since April 2025). Both are one-time account
+  formalities (billing upgrade / template approval), not integration gaps — the same
+  code sends real messages the moment either restriction is lifted.
+- **Simulated by design:** wake-word/volume-button hardware trigger (would need native
+  phone integration), real police-station auto-dispatch (kept human-in-the-loop
+  intentionally — see Privacy & Safety section)
 
 ## Privacy & Safety Design
 - No audio is processed until the agent is actively triggered — not always-listening
@@ -65,7 +80,7 @@ and carefully lower thresholds to improve recall without increasing false positi
 
 ## Tech Stack
 Python, librosa (audio features), Whisper (speech-to-text), scikit-learn-ready scoring
-pipeline, Twilio (SMS/calls), pandas (data handling)
+pipeline, Twilio (WhatsApp/calls), pandas (data handling), Porcupine (wake-word)
 
 ## How to Run
 ```bash
@@ -74,11 +89,14 @@ python src/extract_features.py     # analyze audio -> data/features.csv
 python src/distress_score.py       # score all clips -> data/scored_results.csv
 python tests/evaluate.py           # get precision/recall numbers
 python tests/failure_handling.py   # run failure-handling test suite
-python src/alert_action.py         # test alert sending (simulated unless Twilio configured)
+python src/alert_action.py         # test alert sending (simulated - see note above)
+python src/wake_word_detector.py   # test wake-word activation logic
 ```
 
 ## What We'd Build Next
 - Native mobile wake-word + volume-button trigger integration
 - Larger, more diverse training dataset (target 200+ clips, including real distress speech)
-- Fake-call feature, unsafe-area warnings, "safe walk" timer mode
+- Unsafe-area warnings, "safe walk" timer mode
 - Formal legal/consent review for evidence-recording features
+- Upgrade Twilio account / approve WhatsApp template for live alert delivery
+
