@@ -6,7 +6,7 @@ Women often face situations where they need help but can't safely reach for a ph
 press buttons, or speak clearly. Existing safety apps rely on manual triggers (buttons,
 apps to open), which don't work when hands are occupied, or when speaking loudly is risky.
 
-## Our Approach
+## My Approach
 An AI agent that detects genuine vocal distress — through voice pitch, loudness, and
 distress keywords (English + Hindi) — and automatically alerts emergency contacts with
 location, a message, and an automated phone call carrying a loud alarm sound. Designed with
@@ -93,7 +93,7 @@ python src/alert_action.py         # test alert sending (simulated - see note ab
 python src/wake_word_detector.py   # test wake-word activation logic
 ```
 
-## What We'd Build Next
+## What I'd Build Next
 - Native mobile wake-word + volume-button trigger integration
 - Larger, more diverse training dataset (target 200+ clips, including real distress speech)
 - Unsafe-area warnings, "safe walk" timer mode
